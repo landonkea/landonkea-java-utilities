@@ -1,0 +1,161 @@
+package landonkea;
+
+/**
+ * SimpleTest — Basic tests without JUnit dependency.
+ */
+public class SimpleTest {
+
+    private static int passed = 0;
+    private static int failed = 0;
+
+    public static void main(String[] args) {
+        System.out.println("=== StringUtils tests ===\n");
+
+        testCapitalize();
+        testCamelCase();
+        testSnakeCase();
+        testTruncate();
+        testPalindrome();
+        testCountOccurrences();
+
+        System.out.println("\n=== ArrayUtils tests ===\n");
+
+        testUnique();
+        testChunk();
+        testDifference();
+        testIntersection();
+        testReverse();
+        testMax();
+        testMin();
+
+        System.out.println("\n========================================");
+        System.out.printf("Results: %d passed, %d failed, %d total%n", passed, failed, passed + failed);
+        System.out.println("========================================");
+
+        if (failed > 0) {
+            System.exit(1);
+        }
+    }
+
+    static void assertEquals(Object expected, Object actual, String testName) {
+        if (expected.equals(actual)) {
+            System.out.printf("  ✓ %s%n", testName);
+            passed++;
+        } else {
+            System.out.printf("  ✗ %s: expected '%s', got '%s'%n", testName, expected, actual);
+            failed++;
+        }
+    }
+
+    static void assertTrue(boolean condition, String testName) {
+        if (condition) {
+            System.out.printf("  ✓ %s%n", testName);
+            passed++;
+        } else {
+            System.out.printf("  ✗ %s: expected true, got false%n", testName);
+            failed++;
+        }
+    }
+
+    static void assertFalse(boolean condition, String testName) {
+        if (!condition) {
+            System.out.printf("  ✓ %s%n", testName);
+            passed++;
+        } else {
+            System.out.printf("  ✗ %s: expected false, got true%n", testName);
+            failed++;
+        }
+    }
+
+    // ========== StringUtils tests ==========
+
+    static void testCapitalize() {
+        assertEquals("Hello", StringUtils.capitalize("hello"), "capitalize: lowercase");
+        assertEquals("Hello", StringUtils.capitalize("Hello"), "capitalize: already capitalized");
+        assertEquals("", StringUtils.capitalize(""), "capitalize: empty string");
+    }
+
+    static void testCamelCase() {
+        assertEquals("helloWorld", StringUtils.camelCase("hello world"), "camelCase: space separated");
+        assertEquals("fooBarBaz", StringUtils.camelCase("foo-bar-baz"), "camelCase: hyphen separated");
+        assertEquals("helloWorld", StringUtils.camelCase("hello_world"), "camelCase: underscore separated");
+    }
+
+    static void testSnakeCase() {
+        assertEquals("hello_world", StringUtils.snakeCase("helloWorld"), "snakeCase: camelCase");
+        assertEquals("foo_bar_baz", StringUtils.snakeCase("fooBarBaz"), "snakeCase: camelCase");
+        assertEquals("hello_world", StringUtils.snakeCase("hello-world"), "snakeCase: hyphen");
+    }
+
+    static void testTruncate() {
+        assertEquals("Hello, ...", StringUtils.truncate("Hello, World!", 10), "truncate: with ellipsis");
+        assertEquals("Hi", StringUtils.truncate("Hi", 10), "truncate: no truncation needed");
+        assertEquals("Hello", StringUtils.truncate("Hello", 8, "..."), "truncate: exact length");
+    }
+
+    static void testPalindrome() {
+        assertTrue(StringUtils.isPalindrome("racecar"), "palindrome: racecar");
+        assertFalse(StringUtils.isPalindrome("Hello"), "palindrome: Hello");
+        assertTrue(StringUtils.isPalindrome("Racecar"), "palindrome: case insensitive");
+    }
+
+    static void testCountOccurrences() {
+        assertEquals(3, StringUtils.countOccurrences("hello world", "l"), "countOccurrences: 3 l");
+        assertEquals(3, StringUtils.countOccurrences("aaa", "a"), "countOccurrences: 3 a");
+        assertEquals(0, StringUtils.countOccurrences("hello", "x"), "countOccurrences: 0 x");
+    }
+
+    // ========== ArrayUtils tests ==========
+
+    static void testUnique() {
+        Integer[] arr = {1, 2, 2, 3, 3, 3};
+        assertEquals(3, ArrayUtils.unique(arr).size(), "unique: 3 unique numbers");
+
+        String[] arr2 = {"a", "b", "a"};
+        assertEquals(2, ArrayUtils.unique(arr2).size(), "unique: 2 unique strings");
+    }
+
+    static void testChunk() {
+        Integer[] arr = {1, 2, 3, 4, 5};
+        var chunks = ArrayUtils.chunk(arr, 2);
+        assertEquals(3, chunks.size(), "chunk: 3 chunks");
+        assertEquals(2, chunks.get(0).size(), "chunk: first chunk size 2");
+        assertEquals(1, chunks.get(2).size(), "chunk: last chunk size 1");
+    }
+
+    static void testDifference() {
+        Integer[] arr1 = {1, 2, 3, 4};
+        Integer[] arr2 = {2, 4};
+        var diff = ArrayUtils.difference(arr1, arr2);
+        assertEquals(2, diff.size(), "difference: 2 elements");
+        assertTrue(diff.contains(1), "difference: contains 1");
+        assertTrue(diff.contains(3), "difference: contains 3");
+    }
+
+    static void testIntersection() {
+        Integer[] arr1 = {1, 2, 3};
+        Integer[] arr2 = {2, 3, 4};
+        var inter = ArrayUtils.intersection(arr1, arr2);
+        assertEquals(2, inter.size(), "intersection: 2 elements");
+        assertTrue(inter.contains(2), "intersection: contains 2");
+        assertTrue(inter.contains(3), "intersection: contains 3");
+    }
+
+    static void testReverse() {
+        Integer[] arr = {1, 2, 3};
+        var reversed = ArrayUtils.reverse(arr);
+        assertEquals(3, reversed.get(0), "reverse: first is 3");
+        assertEquals(2, reversed.get(1), "reverse: second is 2");
+        assertEquals(1, reversed.get(2), "reverse: third is 1");
+    }
+
+    static void testMax() {
+        Integer[] arr = {1, 5, 3, 2, 4};
+        assertEquals(5, ArrayUtils.max(arr), "max: 5");
+    }
+
+    static void testMin() {
+        Integer[] arr = {1, 5, 3, 2, 4};
+        assertEquals(1, ArrayUtils.min(arr), "min: 1");
+    }
+}
