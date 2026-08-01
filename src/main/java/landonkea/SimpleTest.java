@@ -2,12 +2,24 @@ package landonkea;
 
 /**
  * SimpleTest — Basic tests without JUnit dependency.
+ *
+ * WHY no JUnit: this repo has no build tool (no Maven/Gradle), so there's
+ * no dependency manager to pull JUnit in for a plain `javac`/`java`
+ * workflow. build.sh runs this class directly with `java -cp
+ * build/classes landonkea.SimpleTest` for exactly that reason. The JUnit
+ * tests under src/test still exist for IDEs/CI that do have JUnit on the
+ * classpath, but they are not what build.sh runs.
  */
 public class SimpleTest {
 
     private static int passed = 0;
     private static int failed = 0;
 
+    /**
+     * Entry point: runs every StringUtils and ArrayUtils test, prints a
+     * pass/fail summary, and exits with status 1 if anything failed (so
+     * build.sh / CI can detect failure from the process exit code).
+     */
     public static void main(String[] args) {
         System.out.println("=== StringUtils tests ===\n");
 
@@ -28,43 +40,50 @@ public class SimpleTest {
         testMax();
         testMin();
 
-        System.out.println("\n========================================");
-        System.out.printf("Results: %d passed, %d failed, %d total%n", passed, failed, passed + failed);
-        System.out.println("========================================");
+        printSummary();
 
         if (failed > 0) {
             System.exit(1);
         }
     }
 
-    static void assertEquals(Object expected, Object actual, String testName) {
-        if (expected.equals(actual)) {
-            System.out.printf("  ✓ %s%n", testName);
-            passed++;
-        } else {
-            System.out.printf("  ✗ %s: expected '%s', got '%s'%n", testName, expected, actual);
-            failed++;
-        }
+    /** Prints the final passed/failed/total tally in a bordered block. */
+    private static void printSummary() {
+        System.out.println("\n========================================");
+        System.out.printf("Results: %d passed, %d failed, %d total%n", passed, failed, passed + failed);
+        System.out.println("========================================");
     }
 
-    static void assertTrue(boolean condition, String testName) {
+    /**
+     * Records a pass or fail for one assertion and prints a checkmark/cross
+     * line. Shared by assertEquals/assertTrue/assertFalse below so the
+     * pass/fail bookkeeping and print formatting live in one place.
+     *
+     * @param condition Whether the assertion held
+     * @param testName Human-readable label for the test
+     * @param expectedDescription What was expected, for the failure message
+     * @param actualDescription What was actually observed, for the failure message
+     */
+    private static void report(boolean condition, String testName, String expectedDescription, String actualDescription) {
         if (condition) {
             System.out.printf("  ✓ %s%n", testName);
             passed++;
         } else {
-            System.out.printf("  ✗ %s: expected true, got false%n", testName);
+            System.out.printf("  ✗ %s: expected '%s', got '%s'%n", testName, expectedDescription, actualDescription);
             failed++;
         }
     }
 
+    static void assertEquals(Object expected, Object actual, String testName) {
+        report(expected.equals(actual), testName, String.valueOf(expected), String.valueOf(actual));
+    }
+
+    static void assertTrue(boolean condition, String testName) {
+        report(condition, testName, "true", "false");
+    }
+
     static void assertFalse(boolean condition, String testName) {
-        if (!condition) {
-            System.out.printf("  ✓ %s%n", testName);
-            passed++;
-        } else {
-            System.out.printf("  ✗ %s: expected false, got true%n", testName);
-            failed++;
-        }
+        report(!condition, testName, "false", "true");
     }
 
     // ========== StringUtils tests ==========

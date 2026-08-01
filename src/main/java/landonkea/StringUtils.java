@@ -11,7 +11,8 @@ public class StringUtils {
      * Capitalize the first letter of a string.
      *
      * @param str The input string
-     * @return The string with the first letter capitalized
+     * @return The string with the first letter capitalized, or str
+     *         unchanged if it is null or empty
      */
     public static String capitalize(String str) {
         if (str == null || str.isEmpty()) {
@@ -23,8 +24,13 @@ public class StringUtils {
     /**
      * Convert a string to camelCase.
      *
+     * HOW: Scans character by character. Spaces, hyphens, and underscores
+     * are treated as word separators — each one is dropped and flags the
+     * next character to be upper-cased. Every other character is lower-cased
+     * by default so mixed-case input (e.g. "FOO-bar") normalizes correctly.
+     *
      * @param str The input string
-     * @return The camelCase version
+     * @return The camelCase version, or str unchanged if it is null or empty
      */
     public static String camelCase(String str) {
         if (str == null || str.isEmpty()) {
@@ -53,8 +59,13 @@ public class StringUtils {
     /**
      * Convert a string to snake_case.
      *
+     * HOW: Inserts an underscore before each uppercase letter (except at
+     * position 0, so "Foo" becomes "foo" not "_foo") and lower-cases it.
+     * Existing hyphens/spaces are also converted to underscores so mixed
+     * separators normalize to one style.
+     *
      * @param str The input string
-     * @return The snake_case version
+     * @return The snake_case version, or str unchanged if it is null or empty
      */
     public static String snakeCase(String str) {
         if (str == null || str.isEmpty()) {
@@ -82,12 +93,18 @@ public class StringUtils {
     }
 
     /**
-     * Truncate a string to a maximum length with ellipsis.
+     * Truncate a string to a maximum length, appending a suffix if it was
+     * shortened.
+     *
+     * WHY maxLength includes the suffix: this lets callers set a hard cap
+     * on the total rendered length (e.g. for a fixed-width UI column)
+     * without doing their own arithmetic for the suffix length.
      *
      * @param str The input string
-     * @param maxLength Maximum length (including ellipsis)
-     * @param suffix The suffix to add (default: "...")
-     * @return The truncated string
+     * @param maxLength Maximum length of the result, including the suffix
+     * @param suffix The suffix to add when truncation happens
+     * @return str unchanged if it already fits (or is null); otherwise the
+     *         truncated string with suffix appended
      */
     public static String truncate(String str, int maxLength, String suffix) {
         if (str == null || str.length() <= maxLength) {
@@ -97,11 +114,12 @@ public class StringUtils {
     }
 
     /**
-     * Truncate a string to a maximum length with "...".
+     * Truncate a string to a maximum length, appending "..." if it was
+     * shortened.
      *
      * @param str The input string
-     * @param maxLength Maximum length
-     * @return The truncated string
+     * @param maxLength Maximum length of the result, including "..."
+     * @return The truncated string; see {@link #truncate(String, int, String)}
      */
     public static String truncate(String str, int maxLength) {
         return truncate(str, maxLength, "...");
@@ -110,9 +128,9 @@ public class StringUtils {
     /**
      * Check if a string is a palindrome.
      *
-     * @param str The input string
-     * @param caseSensitive Whether to consider case
-     * @return True if the string is a palindrome
+     * @param str The input string (must not be null)
+     * @param caseSensitive Whether to consider case when comparing
+     * @return True if the string reads the same forwards and backwards
      */
     public static boolean isPalindrome(String str, boolean caseSensitive) {
         String processed = caseSensitive ? str : str.toLowerCase();
@@ -121,21 +139,26 @@ public class StringUtils {
     }
 
     /**
-     * Check if a string is a palindrome (case-insensitive).
+     * Check if a string is a palindrome, ignoring case.
      *
-     * @param str The input string
-     * @return True if the string is a palindrome
+     * @param str The input string (must not be null)
+     * @return True if the string reads the same forwards and backwards
      */
     public static boolean isPalindrome(String str) {
         return isPalindrome(str, false);
     }
 
     /**
-     * Count occurrences of a substring in a string.
+     * Count non-overlapping occurrences of a substring in a string.
+     *
+     * WHY non-overlapping: after each match, the search resumes past the
+     * end of that match (index += substring.length()) rather than just past
+     * its start. E.g. countOccurrences("aaa", "aa") returns 1, not 2,
+     * because the second "aa" would overlap the first.
      *
      * @param str The input string
      * @param substring The substring to count
-     * @return The number of occurrences
+     * @return The number of non-overlapping occurrences
      */
     public static int countOccurrences(String str, String substring) {
         int count = 0;
