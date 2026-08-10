@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * ArrayUtils — Array manipulation utilities.
+ * ArrayUtils, Array manipulation utilities.
  *
  * This class provides common array operations.
  */
@@ -30,7 +30,7 @@ public class ArrayUtils {
      * Chunk an array into smaller lists of a given size.
      *
      * WHY: The final chunk may be shorter than {@code size} if
-     * {@code arr.length} isn't an exact multiple of {@code size} — this is
+     * {@code arr.length} isn't an exact multiple of {@code size}, this is
      * intentional (no padding), matching common chunk() semantics from other
      * languages.
      *
@@ -59,7 +59,7 @@ public class ArrayUtils {
      *
      * WHY unchecked casts: because Java erases generic types at runtime,
      * there's no way to check at runtime whether a non-list element is
-     * actually a {@code T} — the caller is trusted to pass a list that only
+     * actually a {@code T}, the caller is trusted to pass a list that only
      * contains {@code T} and nested lists thereof. This is why the casts are
      * suppressed rather than eliminated.
      *

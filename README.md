@@ -1,18 +1,18 @@
 # landonkea-java-utilities
 
 Small collection of generic String and Array utility functions for Java, written
-while learning the language — no external dependencies for the main library.
+while learning the language. No external dependencies for the main library.
 
 ## What's here
 
-- `StringUtils` — `capitalize`, `camelCase`, `snakeCase`, `truncate`,
+- `StringUtils`: `capitalize`, `camelCase`, `snakeCase`, `truncate`,
   `isPalindrome`, `countOccurrences`.
-- `ArrayUtils` — `unique`, `chunk`, `flatten`, `difference`, `intersection`,
+- `ArrayUtils`: `unique`, `chunk`, `flatten`, `difference`, `intersection`,
   `reverse`, `max`, `min`.
 
 ## Build & test
 
-There's no Maven/Gradle here — just plain `javac`/`java`. Run:
+There's no Maven/Gradle here. Just plain `javac`/`java`. Run:
 
 ```bash
 ./build.sh

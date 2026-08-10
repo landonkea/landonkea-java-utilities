@@ -1,7 +1,7 @@
 package landonkea;
 
 /**
- * SimpleTest — Basic tests without JUnit dependency.
+ * SimpleTest, Basic tests without JUnit dependency.
  *
  * WHY no JUnit: this repo has no build tool (no Maven/Gradle), so there's
  * no dependency manager to pull JUnit in for a plain `javac`/`java`

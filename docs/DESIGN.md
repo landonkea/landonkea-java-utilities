@@ -1,4 +1,4 @@
-# landonkea-java-utilities — Design & Workflow
+# landonkea-java-utilities - Design & Workflow
 
 ## High-Level Overview
 

@@ -1,7 +1,7 @@
 package landonkea;
 
 /**
- * StringUtils — String manipulation utilities.
+ * StringUtils, String manipulation utilities.
  *
  * This class provides common string operations.
  */
@@ -25,7 +25,7 @@ public class StringUtils {
      * Convert a string to camelCase.
      *
      * HOW: Scans character by character. Spaces, hyphens, and underscores
-     * are treated as word separators — each one is dropped and flags the
+     * are treated as word separators, each one is dropped and flags the
      * next character to be upper-cased. Every other character is lower-cased
      * by default so mixed-case input (e.g. "FOO-bar") normalizes correctly.
      *
