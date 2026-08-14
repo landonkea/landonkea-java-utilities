@@ -1,0 +1,66 @@
+name: Release
+
+# Stable channel: fires when a tag like v0.2.0 lands on main. Skips tags
+# that look like release candidates (release-candidate.yml handles those)
+# and refuses to run unless the tag actually points at a commit on main.
+# Builds the library, runs the test suite, and publishes a GitHub Release
+# with the jar attached. See RELEASING.md.
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    if: ${{ !contains(github.ref_name, '-rc') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Confirm tag is on main
+        run: |
+          git fetch origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "Tag $GITHUB_REF_NAME does not point at a commit on main."
+            echo "Stable releases are only ever cut from main."
+            exit 1
+          fi
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Check tag version against VERSION file
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          FILE_VERSION="$(cat VERSION)"
+
+          if [ "$TAG_VERSION" != "$FILE_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME ($TAG_VERSION) doesn't match the VERSION file ($FILE_VERSION)."
+            exit 1
+          fi
+
+      - name: Build and test
+        run: bash build.sh
+
+      - name: Package jar
+        run: |
+          jar cf "landonkea-java-utilities-${GITHUB_REF_NAME#v}.jar" \
+            -C build/classes landonkea/StringUtils.class \
+            -C build/classes landonkea/ArrayUtils.class
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          prerelease: false
+          generate_release_notes: true
+          files: landonkea-java-utilities-*.jar

@@ -25,3 +25,11 @@ prints a ✓/✗ per assertion and exits non-zero if anything fails.
 `src/test/java/landonkea/UtilsTest.java` is a JUnit 5 version of the same
 tests, kept for IDEs/CI that have JUnit on the classpath. It isn't run by
 `build.sh` and needs the JUnit Jupiter jars on the classpath to compile/run.
+
+## Versions & releases
+
+The current version lives in the `VERSION` file. Release candidates and
+stable releases are cut by pushing a git tag, `v0.2.0-rc.1` for a
+candidate, `v0.2.0` for stable, and a GitHub Actions workflow builds,
+tests, and publishes it. See [RELEASING.md](RELEASING.md) for the full
+process.

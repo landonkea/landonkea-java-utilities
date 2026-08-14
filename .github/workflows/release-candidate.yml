@@ -1,0 +1,57 @@
+name: Release Candidate
+
+# Pre-release channel: fires when a tag like v0.2.0-rc.1 is pushed.
+# Builds the library, runs the test suite, and publishes a GitHub
+# pre-release with the jar attached. See RELEASING.md.
+on:
+  push:
+    tags:
+      - 'v*-rc*'
+
+jobs:
+  release-candidate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Check tag version against VERSION file
+        id: version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          CORE_VERSION="${TAG_VERSION%%-rc*}"
+          FILE_VERSION="$(cat VERSION)"
+
+          if [ "$CORE_VERSION" != "$FILE_VERSION" ]; then
+            echo "Tag $GITHUB_REF_NAME (core version $CORE_VERSION) doesn't match the VERSION file ($FILE_VERSION)."
+            echo "Update VERSION on main before tagging, or re-tag the right commit."
+            exit 1
+          fi
+
+          echo "tag_version=$TAG_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Build and test
+        run: bash build.sh
+
+      - name: Package jar
+        run: |
+          jar cf "landonkea-java-utilities-${{ steps.version.outputs.tag_version }}.jar" \
+            -C build/classes landonkea/StringUtils.class \
+            -C build/classes landonkea/ArrayUtils.class
+
+      - name: Publish pre-release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          prerelease: true
+          generate_release_notes: true
+          files: landonkea-java-utilities-*.jar
