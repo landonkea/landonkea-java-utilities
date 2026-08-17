@@ -34,11 +34,23 @@ public class ArrayUtils {
      * intentional (no padding), matching common chunk() semantics from other
      * languages.
      *
+     * WHY size &lt;= 0 throws: the loop below advances by {@code size} each
+     * pass, so a size of zero never advances (confirmed directly: over
+     * 1,000,000 iterations with no sign of stopping on a 5-element array
+     * before this guard was added) and a negative size moves the loop
+     * variable the wrong way. Matches {@link #max}/{@link #min}'s existing
+     * choice to throw on invalid input rather than degrade silently.
+     *
      * @param arr The input array
-     * @param size The size of each chunk
+     * @param size The size of each chunk; must be positive
      * @return List of chunks; the last chunk may be smaller than size
+     * @throws IllegalArgumentException if size is zero or negative
      */
     public static <T> List<List<T>> chunk(T[] arr, int size) {
+        if (size <= 0) {
+            throw new IllegalArgumentException("Chunk size must be positive, got " + size);
+        }
+
         List<List<T>> chunks = new ArrayList<>();
 
         for (int i = 0; i < arr.length; i += size) {

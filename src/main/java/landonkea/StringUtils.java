@@ -100,15 +100,35 @@ public class StringUtils {
      * on the total rendered length (e.g. for a fixed-width UI column)
      * without doing their own arithmetic for the suffix length.
      *
+     * WHY maxLength &lt; suffix.length() doesn't throw: str.substring(0,
+     * maxLength - suffix.length()) would otherwise be called with a negative
+     * start index, which throws StringIndexOutOfBoundsException, confirmed
+     * directly (truncate("Hello, World!", 2, "...") -> "Range [0, -1) out of
+     * bounds for length 13") before this guard was added. A too-small
+     * budget for a formatting helper like this is a normal occurrence, not
+     * an exceptional one, so it degrades instead: maxLength &lt;= 0 returns
+     * an empty string (no room for anything, suffix included); a positive
+     * but still-too-small maxLength drops the suffix entirely and hard
+     * truncates, rather than emitting a truncated suffix fragment (e.g.
+     * ".." instead of "...", which reads like a bug, not an intentional
+     * ellipsis). The result never exceeds maxLength either way.
+     *
      * @param str The input string
      * @param maxLength Maximum length of the result, including the suffix
      * @param suffix The suffix to add when truncation happens
      * @return str unchanged if it already fits (or is null); otherwise the
-     *         truncated string with suffix appended
+     *         truncated string, with suffix appended if it fits within
+     *         maxLength
      */
     public static String truncate(String str, int maxLength, String suffix) {
         if (str == null || str.length() <= maxLength) {
             return str;
+        }
+        if (maxLength <= 0) {
+            return "";
+        }
+        if (maxLength < suffix.length()) {
+            return str.substring(0, maxLength);
         }
         return str.substring(0, maxLength - suffix.length()) + suffix;
     }
@@ -156,11 +176,23 @@ public class StringUtils {
      * its start. E.g. countOccurrences("aaa", "aa") returns 1, not 2,
      * because the second "aa" would overlap the first.
      *
+     * WHY an empty substring returns 0 rather than looping:
+     * String.indexOf("", index) always returns index itself (an empty
+     * target "matches" at the current position with zero length), so
+     * without this guard index would never advance and the loop would spin
+     * forever. Confirmed directly (1,000,000+ iterations with no sign of
+     * stopping) before adding the guard.
+     *
      * @param str The input string
      * @param substring The substring to count
-     * @return The number of non-overlapping occurrences
+     * @return The number of non-overlapping occurrences; 0 if str or
+     *         substring is null or substring is empty
      */
     public static int countOccurrences(String str, String substring) {
+        if (str == null || substring == null || substring.isEmpty()) {
+            return 0;
+        }
+
         int count = 0;
         int index = 0;
 

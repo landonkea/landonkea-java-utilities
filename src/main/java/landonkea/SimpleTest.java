@@ -110,6 +110,14 @@ public class SimpleTest {
         assertEquals("Hello, ...", StringUtils.truncate("Hello, World!", 10), "truncate: with ellipsis");
         assertEquals("Hi", StringUtils.truncate("Hi", 10), "truncate: no truncation needed");
         assertEquals("Hello", StringUtils.truncate("Hello", 8, "..."), "truncate: exact length");
+
+        // Regression: maxLength < suffix.length() used to throw
+        // StringIndexOutOfBoundsException (negative substring start index).
+        assertEquals("He", StringUtils.truncate("Hello, World!", 2, "..."), "truncate: maxLength(2) < suffix.length(3), no suffix fits");
+        assertEquals("H", StringUtils.truncate("Hello, World!", 1, "..."), "truncate: maxLength(1) < suffix.length(3)");
+        assertEquals("", StringUtils.truncate("Hello, World!", 0, "..."), "truncate: maxLength 0 returns empty string");
+        assertEquals("", StringUtils.truncate("Hello, World!", -5, "..."), "truncate: negative maxLength returns empty string");
+        assertEquals("Hel", StringUtils.truncate("Hello, World!", 3, "[...]"), "truncate: maxLength(3) < custom suffix.length(5)");
     }
 
     static void testPalindrome() {
@@ -122,6 +130,10 @@ public class SimpleTest {
         assertEquals(3, StringUtils.countOccurrences("hello world", "l"), "countOccurrences: 3 l");
         assertEquals(3, StringUtils.countOccurrences("aaa", "a"), "countOccurrences: 3 a");
         assertEquals(0, StringUtils.countOccurrences("hello", "x"), "countOccurrences: 0 x");
+
+        // Regression: an empty substring used to hang forever (index never advanced).
+        assertEquals(0, StringUtils.countOccurrences("hello", ""), "countOccurrences: empty substring returns 0, doesn't hang");
+        assertEquals(0, StringUtils.countOccurrences(null, "l"), "countOccurrences: null str returns 0");
     }
 
     // ========== ArrayUtils tests ==========
@@ -140,6 +152,15 @@ public class SimpleTest {
         assertEquals(3, chunks.size(), "chunk: 3 chunks");
         assertEquals(2, chunks.get(0).size(), "chunk: first chunk size 2");
         assertEquals(1, chunks.get(2).size(), "chunk: last chunk size 1");
+
+        // Regression: size 0 used to hang forever (the loop counter never advanced).
+        boolean threw = false;
+        try {
+            ArrayUtils.chunk(arr, 0);
+        } catch (IllegalArgumentException e) {
+            threw = true;
+        }
+        assertTrue(threw, "chunk: size 0 throws IllegalArgumentException instead of hanging");
     }
 
     static void testDifference() {
